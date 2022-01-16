@@ -4,6 +4,9 @@ from copy import deepcopy
 from collections import namedtuple
 from typing import Tuple
 
+import numpy as np
+import pandas as pd
+
 import torch
 import torch.nn.functional as F
 
@@ -187,13 +190,23 @@ class Agent:
             spub2.append(torch.cat([tmp, actions], dim=-1).to(self.device))
         self.spub2 = tuple(spub2)
 
-    def train(self):
+    def train(self, adversarial: bool, a: float = 1.):
         """Train network w/ MSE and CE and wipe buffer"""
+        # TODO: Return x_mean vals
         self.opt.zero_grad()
         self.nn.train()
         loss = 0
+        
         for t in range(GAME_LEN):
             x, v, p = self.get_batch(t)
+            x_mean = np.mean(x.numpy())
+            print('beliefs: ', x.numpy().shape)
+            print("mean belief vals: ", x_mean)
+            if adversarial:
+                mu = torch.zeros_like(x)
+                sigma = torch.ones_like(x) * a
+                perturb = torch.normal(mu, sigma)
+                x += perturb
             v_, logits_ = self.nn(x)
             ell_ = logits_[t]
             value_loss = torch.nn.MSELoss()(v_.flatten(), v.flatten())
