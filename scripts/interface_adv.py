@@ -5,7 +5,8 @@ import numpy as np
 import torch
 from torch.optim import Adam
 
-from capi.agents import Agent
+# from capi.agents import Agent
+from capi.adv_agents import AdvAgent
 from capi.games import Game
 from capi.models import NN
 from capi.trainers import Trainer
@@ -29,8 +30,8 @@ seed = 869
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--num_items", type=int, default=12)
-    parser.add_argument("--num_utterances", type=int, default=12)
+    parser.add_argument("--num_items", type=int, default=5)
+    parser.add_argument("--num_utterances", type=int, default=5)
     parser.add_argument("--hidden_size", type=int, default=128)
     parser.add_argument("--lr", type=float, default=1e-4)
     parser.add_argument("--num_samples", type=int, default=10_000)
@@ -41,6 +42,9 @@ if __name__ == "__main__":
     parser.add_argument("--directory", type=str, default="results")
     parser.add_argument("--jobnum", type=int, default=0)
     parser.add_argument("--strict_type_check", type=bool, default=False)
+    parser.add_argument("--adversarial", type=bool, default=True)
+    parser.add_argument("--adv_epsilon", type=float, default=0.3)
+    
     args = parser.parse_args()
     if args.strict_type_check:
         os.environ["strict_type_check"] = "1"
@@ -51,7 +55,7 @@ if __name__ == "__main__":
     opt = Adam(nn.parameters(), lr=args.lr)
     g = Game(args.num_items, args.num_utterances)
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    agent = Agent(
+    agent = AdvAgent(
         args.num_items,
         args.num_utterances,
         nn,
@@ -59,8 +63,10 @@ if __name__ == "__main__":
         args.num_samples,
         args.epsilon,
         args.policy_weight,
-        device
+        device,
+        args.adversarial,
+        args.adv_epsilon
     )
     torch.manual_seed(seed)
     trainer = Trainer(g, agent, args.directory)
-    trainer.run(args.num_episodes, args.write_every, True, seed, 0.5)
+    trainer.run(args.num_episodes, args.write_every, seed)

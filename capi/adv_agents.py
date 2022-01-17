@@ -20,13 +20,14 @@ from .type_checking import (
     assert_prescription,
     assert_shape,
 )
+from .adversarial_utils import fgsm_attack
 
 
 named_ex = namedtuple("named_ex", ["state", "value", "policy"])
 GAME_LEN = 3
 
 
-class Agent:
+class AdvAgent:
     def __init__(
         self,
         num_items: int,
@@ -37,6 +38,8 @@ class Agent:
         epsilon: float,
         policy_weight: float,
         device: torch.device,
+        adversarial: bool,
+        adv_epsilon: float = 0.2
     ):
         """Agent operating within PuB-MDP
 
@@ -73,6 +76,8 @@ class Agent:
         self.buffers = tuple(named_ex([], [], []) for _ in range(GAME_LEN))
         self.init_action_repr()
         self.null_action_dynamics = torch.zeros((num_samples, num_utterances))
+        self.adversarial = adversarial
+        self.adv_epsilon = adv_epsilon
 
     def act(
         self, s: State, train: bool
@@ -95,11 +100,27 @@ class Agent:
         # may work better in some circumstances is to parameterize the
         # policy as a tabular function of the public state.
         self.nn.eval()
-        with torch.no_grad():
-            val, all_logits = self.nn(s.tensor().to(self.device))
+        # with torch.no_grad():
+        s_tensor = s.tensor().to(self.device)
+        s_tensor.requires_grad = True
+        val, all_logits = self.nn(s_tensor)
+        
+        ell_ = all_logits[s.time()]
+        
         # Optional additional step (not taken here): Modify policy by
         # increasing the entropy of some rows to encourage exploration
+        policy = F.softmax(ell_, dim=-1)
+        policy_loss = (-policy * torch.nn.LogSoftmax(dim=-1)(ell_)).sum(dim=-1).mean()
+        self.nn.zero_grad()
+        policy_loss.backward()
+        s_grad = s_tensor.grad.data
+        perturbed_s = fgsm_attack(s_tensor, self.adv_epsilon, s_grad)
+        
+        with torch.no_grad():
+            val, all_logits = self.nn(perturbed_s) 
+        
         policy = F.softmax(all_logits[s.time()], dim=-1)
+
         # Sample `num_samples` prescriptions from `policy`. Another setup
         # that may work better in some circumstances is to rollout with the
         # `num_samples`-most likely prescriptions (rather than sampling them).
@@ -199,14 +220,9 @@ class Agent:
         
         for t in range(GAME_LEN):
             x, v, p = self.get_batch(t)
-            x_mean = np.mean(x.numpy())
-            print('beliefs: ', x.numpy().shape)
-            print("mean belief vals: ", x_mean)
-            if adversarial:
-                mu = torch.zeros_like(x)
-                sigma = torch.ones_like(x) * a
-                perturb = torch.normal(mu, sigma)
-                x += perturb
+            # x_mean = np.mean(x.numpy())
+            # print('beliefs: ', x.numpy().shape)
+            # print("mean belief vals: ", x_mean)
             v_, logits_ = self.nn(x)
             ell_ = logits_[t]
             value_loss = torch.nn.MSELoss()(v_.flatten(), v.flatten())
@@ -216,7 +232,7 @@ class Agent:
         self.opt.step()
         self.buffers = tuple(named_ex([], [], []) for _ in range(GAME_LEN))
 
-    def get_batch(self, t: int) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    def get_batch(self, t: int) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         """Get the data from the buffer for time `t`
 
         Args:
@@ -227,6 +243,7 @@ class Agent:
             [*]: values
             [*, num_items, num_utterances] or [*, 2 num_items, num_items ^ 2]:
                 policies
+            [*]: values from perturbed beliefs
         """
         assert_element(t, (0, 1, 2))
         x = torch.stack(self.buffers[t].state).to(self.device)

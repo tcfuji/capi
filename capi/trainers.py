@@ -60,7 +60,7 @@ class Trainer:
                         decision_points.append((s_, prod * p))
         return er.item()
 
-    def run(self, num_episodes: int, write_every: int, adversarial: bool, seed: int, a: float = 1.) -> None:
+    def run(self, num_episodes: int, write_every: int, seed: int) -> None:
         """Run the trainer
 
         Args:
@@ -70,13 +70,13 @@ class Trainer:
         vals = []
         for t in tqdm(range(num_episodes)):
             self.play_episode(train=True)
-            self.agent.train(adversarial, a)
+            self.agent.train()
             if t % write_every == 0:
                 vals.append((t, self.play_episode(train=False)))
-                self.write(vals, adversarial, seed)
+                self.write(vals, seed)
         
 
-    def write(self, vals: List[Tuple[int, float]], adversarial: bool, seed: int) -> None:
+    def write(self, vals: List[Tuple[int, float]], seed: int) -> None:
         """Write data
 
         Args:
@@ -92,12 +92,8 @@ class Trainer:
         
         sns.lineplot(data=df, x="episode", y="expected_return")
         plt.axhline(y=1.0, color="gray", linestyle="-")
-        if adversarial:
-            df.to_csv(f"{self.directory}/job{self.jobnum}_adversarial_{seed}.csv")
-            plt.savefig(f"{self.directory}/job{self.jobnum}_adversarial_{seed}.png")
-        else:
-            df.to_csv(f"{self.directory}/job{self.jobnum}_base_{seed}.csv")
-            plt.savefig(f"{self.directory}/job{self.jobnum}_base_{seed}.png")
+        df.to_csv(f"{self.directory}/job{self.jobnum}_adversarial_{seed}.csv")
+        plt.savefig(f"{self.directory}/job{self.jobnum}_adversarial_{seed}.png")
         
         plt.close()
         
