@@ -30,8 +30,8 @@ seed = 869
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--num_items", type=int, default=5)
-    parser.add_argument("--num_utterances", type=int, default=5)
+    parser.add_argument("--num_items", type=int, default=9)
+    parser.add_argument("--num_utterances", type=int, default=9)
     parser.add_argument("--hidden_size", type=int, default=128)
     parser.add_argument("--lr", type=float, default=1e-4)
     parser.add_argument("--num_samples", type=int, default=10_000)

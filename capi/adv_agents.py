@@ -101,20 +101,10 @@ class AdvAgent:
         # policy as a tabular function of the public state.
         self.nn.eval()
         # with torch.no_grad():
-        s_tensor = s.tensor().to(self.device)
-        s_tensor.requires_grad = True
-        val, all_logits = self.nn(s_tensor)
-        
-        ell_ = all_logits[s.time()]
+        perturbed_s = self.adv_state_tensor(s)
         
         # Optional additional step (not taken here): Modify policy by
         # increasing the entropy of some rows to encourage exploration
-        policy = F.softmax(ell_, dim=-1)
-        policy_loss = (-policy * torch.nn.LogSoftmax(dim=-1)(ell_)).sum(dim=-1).mean()
-        self.nn.zero_grad()
-        policy_loss.backward()
-        s_grad = s_tensor.grad.data
-        perturbed_s = fgsm_attack(s_tensor, self.adv_epsilon, s_grad)
         
         with torch.no_grad():
             val, all_logits = self.nn(perturbed_s) 
@@ -527,4 +517,18 @@ class AdvAgent:
         ).sum(dim=(1, 2))
         assert_shape(values, (self.num_samples,))
         return values
+    
+    def adv_state_tensor(self, s):
+        s_tensor = s.tensor().to(self.device)
+        s_tensor.requires_grad = True
+        val, all_logits = self.nn(s_tensor)
+        ell_ = all_logits[s.time()]
+        policy = F.softmax(ell_, dim=-1)
+        policy_loss = (-policy * torch.nn.LogSoftmax(dim=-1)(ell_)).sum(dim=-1).mean()
+        self.nn.zero_grad()
+        policy_loss.backward()
+        s_grad = s_tensor.grad.data
+        perturbed_s = fgsm_attack(s_tensor, self.adv_epsilon, s_grad)
+        return perturbed_s
+
 
