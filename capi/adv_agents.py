@@ -38,7 +38,6 @@ class AdvAgent:
         epsilon: float,
         policy_weight: float,
         device: torch.device,
-        adversarial: bool,
         adv_epsilon: float = 0.2
     ):
         """Agent operating within PuB-MDP
@@ -76,7 +75,6 @@ class AdvAgent:
         self.buffers = tuple(named_ex([], [], []) for _ in range(GAME_LEN))
         self.init_action_repr()
         self.null_action_dynamics = torch.zeros((num_samples, num_utterances))
-        self.adversarial = adversarial
         self.adv_epsilon = adv_epsilon
 
     def act(
