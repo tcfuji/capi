@@ -17,7 +17,7 @@ from .games import Game
 
 class Trainer:
     def __init__(
-        self, game: Game, agent: Agent, directory: str = "results", jobnum: int = 0
+        self, game: Game, agent: Agent, agent_type: str, directory: str = "results", jobnum: int = 0
     ):
         """Trainer for Trade Comm and coordinator
 
@@ -32,6 +32,7 @@ class Trainer:
         """
         self.game = game
         self.agent = agent
+        self.agent_type = agent_type
         self.directory = directory
         self.jobnum = jobnum
         Path(directory).mkdir(exist_ok=True)
@@ -92,8 +93,8 @@ class Trainer:
         
         sns.lineplot(data=df, x="episode", y="expected_return")
         plt.axhline(y=1.0, color="gray", linestyle="-")
-        df.to_csv(f"{self.directory}/job{self.jobnum}_adversarial_{seed}.csv")
-        plt.savefig(f"{self.directory}/job{self.jobnum}_adversarial_{seed}.png")
+        df.to_csv(f"{self.directory}/job{self.jobnum}_{self.agent_type}_{seed}.csv")
+        plt.savefig(f"{self.directory}/job{self.jobnum}_{self.agent_type}_{seed}.png")
         
         plt.close()
         

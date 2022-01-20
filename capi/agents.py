@@ -200,13 +200,8 @@ class Agent:
         for t in range(GAME_LEN):
             x, v, p = self.get_batch(t)
             x_mean = np.mean(x.numpy())
-            print('beliefs: ', x.numpy().shape)
-            print("mean belief vals: ", x_mean)
-            if adversarial:
-                mu = torch.zeros_like(x)
-                sigma = torch.ones_like(x) * a
-                perturb = torch.normal(mu, sigma)
-                x += perturb
+            # print('beliefs: ', x.numpy().shape)
+            # print("mean belief vals: ", x_mean)
             v_, logits_ = self.nn(x)
             ell_ = logits_[t]
             value_loss = torch.nn.MSELoss()(v_.flatten(), v.flatten())

@@ -19,6 +19,7 @@ setup(
         "matplotlib >= 2.0.0",
         "pandas >= 1.0.3",
         "seaborn >= 0.10.1",
-        "torch >= 1.4.0"
+        "torch >= 1.4.0",
+	"tqdm >= 4.62.3"
     ],
 )

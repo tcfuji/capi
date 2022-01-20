@@ -29,8 +29,8 @@ seed = 869
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--num_items", type=int, default=12)
-    parser.add_argument("--num_utterances", type=int, default=12)
+    parser.add_argument("--num_items", type=int, default=5)
+    parser.add_argument("--num_utterances", type=int, default=5)
     parser.add_argument("--hidden_size", type=int, default=256)
     parser.add_argument("--lr", type=float, default=1e-4)
     parser.add_argument("--num_samples", type=int, default=10_000)
@@ -62,5 +62,5 @@ if __name__ == "__main__":
         device
     )
     torch.manual_seed(seed)
-    trainer = Trainer(g, agent, args.directory)
+    trainer = Trainer(g, agent, 'base', args.directory)
     trainer.run(args.num_episodes, args.write_every, seed)
