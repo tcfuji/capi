@@ -42,7 +42,6 @@ if __name__ == "__main__":
     parser.add_argument("--directory", type=str, default="results")
     parser.add_argument("--jobnum", type=int, default=0)
     parser.add_argument("--strict_type_check", type=bool, default=False)
-    parser.add_argument("--adversarial", type=bool, default=True)
     parser.add_argument("--adv_epsilon", type=float, default=0.3)
     
     args = parser.parse_args()
@@ -64,7 +63,6 @@ if __name__ == "__main__":
         args.epsilon,
         args.policy_weight,
         device,
-        args.adversarial,
         args.adv_epsilon
     )
     torch.manual_seed(seed)
