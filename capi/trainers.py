@@ -69,7 +69,7 @@ class Trainer:
             write_every: The period at which to save data
         """
         vals = []
-        for t in tqdm(range(num_episodes)):
+        for t in tqdm(range(1, num_episodes+1)):
             self.play_episode(train=True)
             self.agent.train()
             if t % write_every == 0:
