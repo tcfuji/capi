@@ -199,7 +199,7 @@ class Agent:
         
         for t in range(GAME_LEN):
             x, v, p = self.get_batch(t)
-            x_mean = np.mean(x.numpy())
+            # x_mean = np.mean(x.cpu().numpy())
             # print('beliefs: ', x.numpy().shape)
             # print("mean belief vals: ", x_mean)
             v_, logits_ = self.nn(x)
