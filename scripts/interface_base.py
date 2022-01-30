@@ -12,16 +12,16 @@ from capi.trainers import Trainer
 
 """
 Seeds:
-837
-450
-330
-512
 869
 431
 891
 473
 624
 695
+837
+450
+330
+512
 """
 
 seed = 869
