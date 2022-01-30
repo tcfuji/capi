@@ -77,7 +77,7 @@ class Trainer:
                 self.write(vals, seed, num_episodes, dim, epsilon)
         
 
-    def write(self, vals: List[Tuple[int, float]], seed: int, num_episodes: int, dim: int, epsilon: float) -> None:
+    def write(self, vals: List[Tuple[int, float]], seed: int, num_episodes: int, dim: int, epsilon: float = None) -> None:
         """Write data
 
         Args:
@@ -93,8 +93,12 @@ class Trainer:
         
         sns.lineplot(data=df, x="episode", y="expected_return")
         plt.axhline(y=1.0, color="gray", linestyle="-")
-        df.to_csv(f"{self.directory}/job{self.jobnum}_{self.agent_type}_{num_episodes}_dim_{dim}_epsilon_{epsilon}_{seed}.csv")
-        plt.savefig(f"{self.directory}/job{self.jobnum}_{self.agent_type}_{num_episodes}_dim_{dim}_epsilon_{epsilon}_{seed}.png")
+        if epsilon is None:
+            df.to_csv(f"{self.directory}/job{self.jobnum}_{self.agent_type}_{num_episodes}_dim_{dim}_{seed}.csv")
+            plt.savefig(f"{self.directory}/job{self.jobnum}_{self.agent_type}_{num_episodes}_dim_{dim}_{seed}.png")
+        else:
+            df.to_csv(f"{self.directory}/job{self.jobnum}_{self.agent_type}_{num_episodes}_dim_{dim}_epsilon_{epsilon}_{seed}.csv")
+            plt.savefig(f"{self.directory}/job{self.jobnum}_{self.agent_type}_{num_episodes}_dim_{dim}_epsilon_{epsilon}_{seed}.png")
         
         plt.close()
         
