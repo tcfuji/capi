@@ -67,4 +67,4 @@ if __name__ == "__main__":
     )
     torch.manual_seed(seed)
     trainer = Trainer(g, agent, 'adversarial', args.directory)
-    trainer.run(args.num_episodes, args.write_every, seed)
+    trainer.run(args.num_episodes, args.write_every, seed, args.num_items, args.epsilon)

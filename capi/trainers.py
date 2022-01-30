@@ -61,7 +61,7 @@ class Trainer:
                         decision_points.append((s_, prod * p))
         return er.item()
 
-    def run(self, num_episodes: int, write_every: int, seed: int) -> None:
+    def run(self, num_episodes: int, write_every: int, seed: int, dim: int, epsilon:float) -> None:
         """Run the trainer
 
         Args:
@@ -74,10 +74,10 @@ class Trainer:
             self.agent.train()
             if t % write_every == 0:
                 vals.append((t, self.play_episode(train=False)))
-                self.write(vals, seed)
+                self.write(vals, seed, num_episodes, dim, epsilon)
         
 
-    def write(self, vals: List[Tuple[int, float]], seed: int) -> None:
+    def write(self, vals: List[Tuple[int, float]], seed: int, num_episodes: int, dim: int, epsilon: float) -> None:
         """Write data
 
         Args:
@@ -93,8 +93,8 @@ class Trainer:
         
         sns.lineplot(data=df, x="episode", y="expected_return")
         plt.axhline(y=1.0, color="gray", linestyle="-")
-        df.to_csv(f"{self.directory}/job{self.jobnum}_{self.agent_type}_{seed}.csv")
-        plt.savefig(f"{self.directory}/job{self.jobnum}_{self.agent_type}_{seed}.png")
+        df.to_csv(f"{self.directory}/job{self.jobnum}_{self.agent_type}_{num_episodes}_dim_{dim}_epsilon_{epsilon}_{seed}.csv")
+        plt.savefig(f"{self.directory}/job{self.jobnum}_{self.agent_type}_{num_episodes}_dim_{dim}_epsilon_{epsilon}_{seed}.png")
         
         plt.close()
         
