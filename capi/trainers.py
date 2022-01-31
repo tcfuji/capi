@@ -61,7 +61,7 @@ class Trainer:
                         decision_points.append((s_, prod * p))
         return er.item()
 
-    def run(self, num_episodes: int, write_every: int, seed: int, dim: int, epsilon:float) -> None:
+    def run(self, num_episodes: int, write_every: int, seed: int, dim: int, epsilon: float = None) -> None:
         """Run the trainer
 
         Args:
@@ -77,7 +77,7 @@ class Trainer:
                 self.write(vals, seed, num_episodes, dim, epsilon)
         
 
-    def write(self, vals: List[Tuple[int, float]], seed: int, num_episodes: int, dim: int, epsilon: float = None) -> None:
+    def write(self, vals: List[Tuple[int, float]], seed: int, num_episodes: int, dim: int, epsilon: float) -> None:
         """Write data
 
         Args:
