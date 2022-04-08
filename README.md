@@ -5,13 +5,12 @@ CAPI is an approximate policy iteration algorithm that operates within the PuB-M
 It was introduced in the paper and thesis _Solving Common-Payoff Games with Approximate Policy Iteration_.
 
 ## Installation
-- Clone the repository using the command `git clone https://github.com/ssokota/capi.git`
+- Clone the repository using the command `git clone https://github.com/tcfuji/capi.git`
 - Enter the directory using `cd capi`
 - Install the package with the command `pip install .`
 
 ## Reproducing Results
-The command `python scripts/interface.py` executes one run with the same settings as those used to generate results from Figure 4 of the AAAI paper.
-One run takes a few hours on a GPU.
+The command `python scripts/interface_base.py` or `python scripts/interface_adv.py` executes one run with the same settings as those used to generate results.
 Try the command `python scripts/interface.py --num_items 5 --num_utterances 5` for computationally cheaper results on a smaller version of Trade Comm.
 
 ## References
